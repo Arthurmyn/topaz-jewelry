@@ -27,9 +27,11 @@ from app.seed.data import CATEGORIES, PRODUCTS, STONES, STORES
 
 def placeholder_image(seed: str, size: int = 1600) -> bytes:
     """Soft gradient with a ring: a stand-in for a product photo."""
-    h = int(hashlib.md5(seed.encode(), usedforsecurity=False).hexdigest()[:4], 16) / 65535  # noqa: S324
-    top = tuple(int(c * 255) for c in colorsys.hsv_to_rgb(h, 0.12, 0.97))
-    bottom = tuple(int(c * 255) for c in colorsys.hsv_to_rgb(h, 0.30, 0.82))
+    # Warm, low-saturation tones so placeholders sit quietly inside the storefront palette.
+    t = int(hashlib.md5(seed.encode(), usedforsecurity=False).hexdigest()[:4], 16) / 65535  # noqa: S324
+    h = 0.08 + t * 0.05
+    top = tuple(int(c * 255) for c in colorsys.hsv_to_rgb(h, 0.05, 0.95))
+    bottom = tuple(int(c * 255) for c in colorsys.hsv_to_rgb(h, 0.16, 0.84))
     img = Image.new("RGB", (size, size), top)
     draw = ImageDraw.Draw(img)
     for y in range(size):

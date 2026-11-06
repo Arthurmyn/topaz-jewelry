@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start dependencies
+        run: docker compose up -d --build db redis minio minio-init
+      - name: Build API image
+        run: docker compose build api
+      - name: Ruff
+        run: |
+          docker compose run --rm --no-deps -T api ruff check .
+          docker compose run --rm --no-deps -T api ruff format --check .
+      - name: Mypy
+        run: docker compose run --rm --no-deps -T api mypy app
+      - name: Import boundaries
+        run: docker compose run --rm --no-deps -T api lint-imports
+      - name: Tests
+        run: docker compose run --rm --no-deps -T api pytest -q
+      - name: Migrations apply cleanly and match models
+        run: |
+          docker compose run --rm --no-deps -T api alembic upgrade head
+          docker compose run --rm --no-deps -T api alembic check
+      - name: OpenAPI spec is up to date
+        run: |
+          docker compose run --rm --no-deps -T api python -m app.cli export-openapi --out openapi.json
+          git diff --exit-code apps/api/openapi.json
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - name: Generated API types are up to date
+        run: |
+          npm run gen:api
+          git diff --exit-code src/lib/api/schema.d.ts
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build

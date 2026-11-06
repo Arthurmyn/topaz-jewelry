@@ -1,0 +1,25 @@
+# SITE_ADDRESS: ":80" for local (plain HTTP), or a domain name in production (automatic TLS).
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	# Public media bucket served straight from object storage.
+	handle_path /media/* {
+		rewrite * /{$S3_BUCKET:topaz-media}{path}
+		reverse_proxy minio:9000
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}

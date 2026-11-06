@@ -50,11 +50,6 @@ export const ru = {
     toCatalog: "Перейти в каталог",
   },
   home: {
-    // Legacy keys, removed once the new home page lands.
-    heroTitle: "Украшения, которые остаются с вами",
-    heroSubtitle: "Золото 585 и 750 пробы. Ограниченные серии.",
-    heroCta: "Перейти в каталог",
-    categories: "Категории",
     heroSlides: [
       {
         title: "Сияние",

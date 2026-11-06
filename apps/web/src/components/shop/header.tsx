@@ -1,53 +1,52 @@
 import Link from "next/link";
-import { Heart, User } from "lucide-react";
+import { Heart, ShoppingBag, User } from "lucide-react";
 import { ru } from "@/content/ru";
+import { serverApi } from "@/lib/api/client";
 import { getConfig } from "@/lib/features";
+import { MainNav } from "./main-nav";
+import { MobileMenu } from "./mobile-menu";
+import { SearchBox } from "./search-box";
+import { Wordmark } from "./wordmark";
+
+const iconBtn = "hover:bg-sand grid size-10 place-items-center transition-colors duration-150";
 
 export async function Header() {
-  const { features } = await getConfig();
+  const [{ features }, { data: categories }] = await Promise.all([
+    getConfig(),
+    serverApi(300).GET("/api/v1/categories"),
+  ]);
+  const cats = categories ?? [];
+
   return (
-    <header className="border-line bg-paper/95 sticky top-0 z-30 border-b backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <Link href="/" className="font-serif text-2xl tracking-wide">
-          {ru.site.name}
-        </Link>
-        <nav className="hidden items-center gap-6 text-sm md:flex">
-          <Link href="/catalog" className="hover:text-gold-dark">
-            {ru.nav.catalog}
-          </Link>
-          <Link href="/stores" className="hover:text-gold-dark">
-            {ru.nav.stores}
-          </Link>
-          <Link href="/about" className="hover:text-gold-dark">
-            {ru.nav.about}
-          </Link>
-          <Link href="/delivery" className="hover:text-gold-dark">
-            {ru.nav.delivery}
-          </Link>
-          <Link href="/contacts" className="hover:text-gold-dark">
-            {ru.nav.contacts}
-          </Link>
-        </nav>
-        <div className="flex items-center gap-3">
+    <header className="border-line sticky top-0 z-40 border-b">
+      {/* Blur lives on its own layer: backdrop-filter on the header would trap the fixed mobile drawer. */}
+      <div aria-hidden="true" className="glass absolute inset-0 -z-10" />
+      <div className="mx-auto grid h-16 max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-4 md:px-8">
+        <div className="flex items-center gap-2">
+          <MobileMenu categories={cats} />
+          <Wordmark className="max-lg:hidden" />
+        </div>
+        <MainNav categories={cats} />
+        <div className="lg:hidden">
+          <Wordmark />
+        </div>
+        <div className="col-start-3 row-start-1 flex items-center justify-end">
+          <SearchBox />
           {features.accounts && (
             <>
-              <Link href="/account/favorites" aria-label={ru.nav.favorites}>
-                <Heart className="size-5" />
+              <Link href="/account/favorites" aria-label={ru.nav.favorites} className={iconBtn}>
+                <Heart className="size-5" strokeWidth={1.4} aria-hidden="true" />
               </Link>
-              <Link href="/account" aria-label={ru.nav.account}>
-                <User className="size-5" />
+              <Link href="/account" aria-label={ru.nav.account} className={iconBtn}>
+                <User className="size-5" strokeWidth={1.4} aria-hidden="true" />
               </Link>
             </>
           )}
+          <Link href="/cart" aria-label={ru.nav.cart} className={iconBtn}>
+            <ShoppingBag className="size-5" strokeWidth={1.4} aria-hidden="true" />
+          </Link>
         </div>
       </div>
-      <nav className="border-line flex gap-5 overflow-x-auto border-t px-4 py-2 text-sm md:hidden">
-        <Link href="/catalog">{ru.nav.catalog}</Link>
-        <Link href="/stores">{ru.nav.stores}</Link>
-        <Link href="/about">{ru.nav.about}</Link>
-        <Link href="/delivery">{ru.nav.delivery}</Link>
-        <Link href="/contacts">{ru.nav.contacts}</Link>
-      </nav>
     </header>
   );
 }

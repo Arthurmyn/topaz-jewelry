@@ -1,6 +1,6 @@
 "use client";
 
-import { ru } from "@/content/ru";
+import { ru } from "@/content/admin-ru";
 import type { FieldConfig } from "@/lib/admin-resources";
 import { Button } from "@/components/ui/button";
 

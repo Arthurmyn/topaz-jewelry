@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ru } from "@/content/ru";
+import { ru } from "@/content/admin-ru";
 import { AdminApiError, adminFetch } from "@/lib/admin-api";
 import type { ResourceConfig } from "@/lib/admin-resources";
 import { Button } from "@/components/ui/button";

@@ -1,4 +1,4 @@
-import { ru } from "@/content/ru";
+import { ru } from "@/content/admin-ru";
 
 /**
  * Admin resources are declared here. To add a CRUD screen:

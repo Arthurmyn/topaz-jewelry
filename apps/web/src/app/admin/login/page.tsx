@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ru } from "@/content/ru";
+import { ru } from "@/content/admin-ru";
 import { AdminApiError, adminFetch } from "@/lib/admin-api";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ru } from "@/content/ru";
+import { ru } from "@/content/admin-ru";
 import { adminFetch } from "@/lib/admin-api";
 import type { FieldConfig } from "@/lib/admin-resources";
 import { Button } from "@/components/ui/button";

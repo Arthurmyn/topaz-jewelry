@@ -1,4 +1,4 @@
-import { ru } from "@/content/ru";
+import { ru } from "@/content/admin-ru";
 
 export default function AdminDashboard() {
   return (

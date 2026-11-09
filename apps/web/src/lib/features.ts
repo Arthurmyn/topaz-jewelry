@@ -1,22 +1,14 @@
-import { cache } from "react";
-import { serverApi } from "@/lib/api/client";
-import type { PublicConfig } from "@/lib/api/types";
-
-const FALLBACK: PublicConfig = {
-  features: { accounts: false, payments: false },
-  currency: "KZT",
-  whatsapp_number: "",
-};
-
 /**
- * Public config incl. feature flags. Fetched at runtime (not baked into the build),
- * so changing FEATURE_* env vars needs a restart, not a rebuild.
+ * Optional modules, switched by environment variables read at runtime on the server
+ * (so a restart is enough, no rebuild). Defaults to off, matching the product rules.
+ *   FEATURE_ACCOUNTS=true  -> profile, favorites sync, login
+ *   FEATURE_PAYMENTS=true  -> online card payment option at checkout
  */
-export const getConfig = cache(async (): Promise<PublicConfig> => {
-  try {
-    const { data } = await serverApi(60).GET("/api/v1/config");
-    return data ?? FALLBACK;
-  } catch {
-    return FALLBACK;
-  }
-});
+export type Features = { accounts: boolean; payments: boolean };
+
+export function getFeatures(): Features {
+  return {
+    accounts: process.env.FEATURE_ACCOUNTS === "true",
+    payments: process.env.FEATURE_PAYMENTS === "true",
+  };
+}

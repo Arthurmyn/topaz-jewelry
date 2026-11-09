@@ -100,6 +100,8 @@ services:
     environment:
       INTERNAL_API_URL: http://api:8000
       SITE_URL: ${SITE_URL:-http://localhost:8080}
+      FEATURE_ACCOUNTS: ${FEATURE_ACCOUNTS:-false}
+      FEATURE_PAYMENTS: ${FEATURE_PAYMENTS:-false}
       WATCHPACK_POLLING: "true"
     volumes:
       - ./apps/web:/app

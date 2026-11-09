@@ -1,48 +1,65 @@
 "use client";
 
 import { useState } from "react";
-import { ru } from "@/content/ru";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { useDict } from "@/components/providers/app-providers";
 
-/**
- * UI only for now: the newsletter API (double opt-in) is a later module.
- * It tells the visitor honestly that subscription is not live yet instead of pretending.
- */
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Frontend-only: validates and shows success. The email is not sent anywhere yet. */
 export function NewsletterForm() {
-  const [message, setMessage] = useState<string | null>(null);
+  const dict = useDict();
+  const t = dict.home.newsletter;
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    setMessage(form.get("consent") ? ru.newsletter.soon : ru.newsletter.needConsent);
+    const email = String(form.get("email") ?? "").trim();
+    if (!EMAIL.test(email)) return setError(dict.common.invalidEmail);
+    if (!form.get("consent")) return setError(dict.common.consentRequired);
+    setError(null);
+    setDone(true);
+  }
+
+  if (done) {
+    return (
+      <p role="status" className="text-16 text-ink">
+        {t.success}
+      </p>
+    );
   }
 
   return (
-    <form onSubmit={submit} noValidate className="max-w-md">
-      <label htmlFor="newsletter-email" className="sr-only">
-        {ru.newsletter.email}
-      </label>
-      <div className="border-ink/40 focus-within:border-ink flex items-end gap-3 border-b transition-colors duration-150">
-        <input
+    <form onSubmit={submit} noValidate className="flex w-full flex-col items-center gap-5">
+      <div className="flex w-full max-w-[595px] flex-col gap-3 sm:flex-row">
+        <label htmlFor="newsletter-email" className="sr-only">
+          {t.email}
+        </label>
+        <Input
           id="newsletter-email"
           name="email"
           type="email"
-          required
           autoComplete="email"
-          placeholder={ru.newsletter.email}
-          className="placeholder:text-muted h-12 min-w-0 flex-1 bg-transparent text-base outline-none"
+          placeholder={t.email}
+          aria-invalid={error === dict.common.invalidEmail}
+          className="sm:w-[420px]"
         />
-        <Button type="submit" variant="light" size="sm" className="mb-2">
-          {ru.newsletter.submit}
-        </Button>
+        <Button type="submit">{t.submit}</Button>
       </div>
-      <label className="text-muted mt-4 flex items-start gap-3 text-xs leading-relaxed">
-        <input type="checkbox" name="consent" className="mt-0.5 size-4 shrink-0" />
-        {ru.newsletter.consent}
-      </label>
-      <p role="status" className="mt-3 min-h-5 text-sm">
-        {message}
-      </p>
+      <div className="relative">
+        <Checkbox name="consent" label={t.consent} className="text-13 text-muted" />
+        {/* Absolutely positioned so showing an error never shifts the layout. */}
+        <p
+          role="alert"
+          className="text-12 text-error absolute top-full left-0 pt-2 whitespace-nowrap"
+        >
+          {error}
+        </p>
+      </div>
     </form>
   );
 }

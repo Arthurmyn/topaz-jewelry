@@ -2,21 +2,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "./slot";
 import { cn } from "@/lib/cn";
 
-// Square, tracked-out capitals. Press feedback is instant and interruptible (transform transition).
+/**
+ * Wireframe buttons: square, 13px medium caps with 0.52px tracking.
+ * `dark`, `outline`, `light` come from the wireframe. `ghost` and `danger` exist only for the admin panel.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-[0.16em] transition-[background-color,color,border-color,transform] duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center text-13 font-medium uppercase tracking-button transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "bg-ink text-paper hover:bg-deep",
-        light: "bg-paper text-ink hover:bg-white",
-        outline: "border border-ink/30 text-ink hover:border-ink",
-        ghost: "hover:bg-sand",
-        danger: "bg-red-700 text-white hover:bg-red-800",
+        dark: "bg-ink text-white hover:bg-dark",
+        outline: "border border-ink bg-transparent text-ink hover:bg-ink hover:text-white",
+        light: "bg-white text-ink hover:bg-soft",
+        ghost: "text-ink hover:bg-soft",
+        danger: "bg-error text-white hover:opacity-90",
       },
-      size: { sm: "h-8 px-3", md: "h-11 px-6", lg: "h-14 px-10" },
+      size: { sm: "h-8 px-3", md: "px-7 py-3.5", lg: "px-10 py-4" },
     },
-    defaultVariants: { variant: "primary", size: "md" },
+    defaultVariants: { variant: "dark", size: "md" },
   },
 );
 

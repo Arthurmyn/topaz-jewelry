@@ -36,16 +36,17 @@ Set in `.env`, then `docker compose up -d api web`:
 
 | Flag | Off (default) | On |
 |------|---------------|----|
-| `FEATURE_ACCOUNTS` | guest checkout only; no login/profile/favorites for customers | customer registration, login, profile |
+| `FEATURE_ACCOUNTS` | guest checkout only; no login or profile for customers (favorites stay local) | customer registration, login, profile |
 | `FEATURE_PAYMENTS` | order-by-request (no payment) | online payment through `PAYMENT_PROVIDER` (`mock` for now) |
 
-Admin login works in both modes. UI picks flags up within about a minute.
+Admin login works in both modes. The web server reads the flags at runtime: restart `web` after changing them.
 
 ## Common tasks
 
 ```bash
 make test          # backend tests (real Postgres + Redis)
 make lint          # ruff, mypy, import-linter, eslint, tsc, prettier
+make test-web      # frontend unit tests (vitest)
 make fmt           # auto-format
 make gen-api       # regenerate openapi.json and the TypeScript types after changing the API
 make migration m="add orders"   # create a migration from model changes
@@ -64,7 +65,8 @@ apps/web     Next.js frontend (shop + /admin)
 infra/       Caddy reverse proxy config, Postgres init
 ```
 
-Edit all Russian site text in `apps/web/src/content/ru.ts`.
+Edit storefront text in `apps/web/src/content/dictionaries/` (`ru`, `en`, `kk`), visual tokens in `apps/web/src/styles/theme.css`, and sample products in `apps/web/src/content/mock/`.
+The storefront currently runs frontend-only on mock data and follows the Figma wireframe v0; language (RU/KK/EN) and currency (KZT/USD/RUB) are switched in the header, rates come from the National Bank of Kazakhstan.
 
 ## What is implemented (foundation)
 

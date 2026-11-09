@@ -678,3 +678,17 @@ Tracks: **BE** (backend), **FE** (frontend), **INT** (integrations/infra). One d
 | Import-linter rule on cross-module model imports | Only "core never imports modules" | The cross-module rule needs an allow-list that is easier to define once more modules exist. |
 | Sitemap from a backend endpoint | Sitemap reads the first 100 products via the list API | Replace with a dedicated endpoint once the catalog exceeds 100 products. |
 | Database tables | Foundation migration has users, sessions, categories, products, variants, images, stones, product_stones, store_locations | Remaining tables arrive with their modules via normal migrations. |
+
+### Frontend wireframe build (Nov 2026)
+
+The storefront was rebuilt from the Figma wireframe v0 and runs **frontend-only** (no backend calls):
+
+| Topic | Decision |
+|-------|----------|
+| Layout | Wireframe frames (Home, Catalog, Product, Cart, Checkout, Auth, Profile, Stores, About, Info, Chat). Page heights match the frames to the pixel at 1440px. |
+| Tokens | One theme file (`styles/theme.css`): palette, Inter, type scale with Figma line heights, layout widths. |
+| Copy | Dictionaries `ru`/`en`/`kk` under `content/dictionaries` (Kazakh is a draft). Language and currency are cookies read on the server per request. |
+| Currency | Prices in KZT; USD and RUB converted with the National Bank of Kazakhstan RSS (cached 1 h, static fallback). |
+| Data | `content/mock/*` and localStorage (`lib/state/*`) stand in for the API; each such place is commented "frontend-only". |
+| Flags | `FEATURE_ACCOUNTS` / `FEATURE_PAYMENTS` env vars read at runtime on the web server. |
+| Not in the wireframe, added | Language/currency switchers (top-left of the header), closed chat button, `/favorites` page (local favorites), checkout success state, empty/error states, responsive behavior below 1440px. |

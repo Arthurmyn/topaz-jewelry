@@ -1,91 +1,79 @@
 import Link from "next/link";
-import { ru } from "@/content/ru";
-import { serverApi } from "@/lib/api/client";
-import { getConfig } from "@/lib/features";
-import { whatsappLink } from "@/lib/format";
-import { Wordmark } from "./wordmark";
+import { SITE } from "@/content/site";
+import { getDict } from "@/lib/i18n-server";
 
-const link = "text-deep-text/90 transition-colors duration-150 hover:text-white";
+const link = "text-14 text-muted hover:text-ink";
 
 export async function Footer() {
-  const [config, { data: categories }] = await Promise.all([
-    getConfig(),
-    serverApi(300).GET("/api/v1/categories"),
-  ]);
+  const dict = await getDict();
+  const f = dict.footer;
+
+  const columns: { title: string; links: { label: string; href: string; external?: boolean }[] }[] =
+    [
+      {
+        title: f.buyers.title,
+        links: [
+          { label: f.buyers.delivery, href: "/info/delivery" },
+          { label: f.buyers.sizes, href: "/info/sizes" },
+          { label: f.buyers.care, href: "/info/care" },
+          { label: f.buyers.faq, href: "/info/faq" },
+        ],
+      },
+      {
+        title: f.about.title,
+        links: [
+          { label: f.about.brand, href: "/about" },
+          { label: f.about.stores, href: "/stores" },
+          { label: f.about.contacts, href: "/info/contacts" },
+          { label: f.about.news, href: "/info/news" },
+        ],
+      },
+      {
+        title: f.info.title,
+        links: [
+          { label: f.info.offer, href: "/info/offer" },
+          { label: f.info.privacy, href: "/info/privacy" },
+          { label: f.info.returns, href: "/info/returns" },
+        ],
+      },
+      {
+        title: f.social.title,
+        links: [
+          { label: f.social.instagram, href: SITE.social.instagram, external: true },
+          { label: f.social.whatsapp, href: SITE.social.whatsapp, external: true },
+          { label: f.social.twoGis, href: SITE.social.twoGis, external: true },
+        ],
+      },
+    ];
 
   return (
-    <footer className="bg-deep text-deep-text mt-28">
-      <div className="mx-auto grid max-w-[1600px] gap-12 px-4 py-16 md:grid-cols-4 md:px-8">
-        <div>
-          <h2 className="font-serif text-2xl">{ru.footer.buyers}</h2>
-          <ul className="mt-5 space-y-3 text-sm">
-            <li>
-              <Link href="/delivery" className={link}>
-                {ru.nav.delivery}
-              </Link>
-            </li>
-            <li>
-              <Link href="/contacts" className={link}>
-                {ru.nav.contacts}
-              </Link>
-            </li>
-          </ul>
+    <footer className="px-page w-full bg-white pt-[72px] pb-10">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-14">
+        <div className="grid grid-cols-2 gap-x-12 gap-y-10 lg:grid-cols-4">
+          {columns.map((col) => (
+            <div key={col.title} className="flex flex-col gap-3">
+              <p className="text-14 text-ink font-medium">{col.title}</p>
+              {col.links.map((l) =>
+                l.external ? (
+                  <a
+                    key={l.label}
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={link}
+                  >
+                    {l.label}
+                  </a>
+                ) : (
+                  <Link key={l.label} href={l.href} className={link}>
+                    {l.label}
+                  </Link>
+                ),
+              )}
+            </div>
+          ))}
         </div>
-        <div>
-          <h2 className="font-serif text-2xl">{ru.footer.catalog}</h2>
-          <ul className="mt-5 space-y-3 text-sm">
-            {(categories ?? []).map((c) => (
-              <li key={c.slug}>
-                <Link href={`/catalog/${c.slug}`} className={link}>
-                  {c.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h2 className="font-serif text-2xl">{ru.footer.company}</h2>
-          <ul className="mt-5 space-y-3 text-sm">
-            <li>
-              <Link href="/about" className={link}>
-                {ru.nav.about}
-              </Link>
-            </li>
-            <li>
-              <Link href="/stores" className={link}>
-                {ru.nav.stores}
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2 className="font-serif text-2xl">{ru.footer.contact}</h2>
-          <ul className="mt-5 space-y-3 text-sm">
-            {config.whatsapp_number && (
-              <li>
-                <a
-                  href={whatsappLink(config.whatsapp_number)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={link}
-                >
-                  {ru.footer.whatsapp}
-                </a>
-              </li>
-            )}
-            <li>
-              <Link href="/stores" className={link}>
-                {ru.footer.writeUs}
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div className="border-deep-line border-t">
-        <div className="mx-auto flex max-w-[1600px] flex-col items-center justify-between gap-6 px-4 py-8 md:flex-row md:px-8">
-          <Wordmark light />
-          <p className="text-deep-muted text-xs">{ru.footer.rights(new Date().getFullYear())}</p>
-        </div>
+        <p className="text-13 text-muted">{f.copyright}</p>
       </div>
     </footer>
   );

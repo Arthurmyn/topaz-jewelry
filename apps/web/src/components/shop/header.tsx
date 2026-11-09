@@ -1,52 +1,79 @@
+"use client";
+
 import Link from "next/link";
-import { Heart, ShoppingBag, User } from "lucide-react";
-import { ru } from "@/content/ru";
-import { serverApi } from "@/lib/api/client";
-import { getConfig } from "@/lib/features";
-import { MainNav } from "./main-nav";
-import { MobileMenu } from "./mobile-menu";
-import { SearchBox } from "./search-box";
-import { Wordmark } from "./wordmark";
+import { useDict, useFeatures } from "@/components/providers/app-providers";
+import { fmt } from "@/lib/text";
+import { cartCount, useCartLines } from "@/lib/state/cart";
+import { HEADER_NAV } from "@/lib/routes";
+import { HeaderSearch } from "./header-search";
+import { PreferenceSwitchers } from "./preference-switchers";
 
-const iconBtn = "hover:bg-sand grid size-10 place-items-center transition-colors duration-150";
+const link = "text-13 text-ink hover:text-muted whitespace-nowrap";
 
-export async function Header() {
-  const [{ features }, { data: categories }] = await Promise.all([
-    getConfig(),
-    serverApi(300).GET("/api/v1/categories"),
-  ]);
-  const cats = categories ?? [];
+/** Wireframe header: search + language/currency on the left, logo, account links and cart on the right. */
+export function Header() {
+  const dict = useDict();
+  const { accounts } = useFeatures();
+  const count = cartCount(useCartLines());
 
   return (
-    <header className="border-line sticky top-0 z-40 border-b">
-      {/* Blur lives on its own layer: backdrop-filter on the header would trap the fixed mobile drawer. */}
-      <div aria-hidden="true" className="glass absolute inset-0 -z-10" />
-      <div className="mx-auto grid h-16 max-w-[1600px] grid-cols-[1fr_auto_1fr] items-center px-4 md:px-8">
-        <div className="flex items-center gap-2">
-          <MobileMenu categories={cats} />
-          <Wordmark className="max-lg:hidden" />
+    <header className="border-border border-b bg-white">
+      <div className="px-header flex items-center py-[22px]">
+        <div className="flex min-w-0 flex-1 items-center gap-6">
+          <HeaderSearch />
+          <div className="max-md:hidden">
+            <PreferenceSwitchers />
+          </div>
         </div>
-        <MainNav categories={cats} />
-        <div className="lg:hidden">
-          <Wordmark />
+        <div className="flex flex-1 justify-center">
+          <Link
+            href="/"
+            aria-label="Topaz Jewelry"
+            className="text-28 text-ink tracking-logo font-medium"
+          >
+            TOPAZ
+          </Link>
         </div>
-        <div className="col-start-3 row-start-1 flex items-center justify-end">
-          <SearchBox />
-          {features.accounts && (
-            <>
-              <Link href="/account/favorites" aria-label={ru.nav.favorites} className={iconBtn}>
-                <Heart className="size-5" strokeWidth={1.4} aria-hidden="true" />
-              </Link>
-              <Link href="/account" aria-label={ru.nav.account} className={iconBtn}>
-                <User className="size-5" strokeWidth={1.4} aria-hidden="true" />
-              </Link>
-            </>
+        <div className="flex flex-1 items-center justify-end gap-6">
+          <Link href="/favorites" className={`${link} max-md:hidden`}>
+            {dict.header.favorites}
+          </Link>
+          {accounts && (
+            <Link href="/profile" className={`${link} max-md:hidden`}>
+              {dict.header.profile}
+            </Link>
           )}
-          <Link href="/cart" aria-label={ru.nav.cart} className={iconBtn}>
-            <ShoppingBag className="size-5" strokeWidth={1.4} aria-hidden="true" />
+          <Link href="/cart" className={link}>
+            {fmt(dict.header.cart, { n: count })}
           </Link>
         </div>
       </div>
+      <nav aria-label={dict.header.navLabel} className="no-scrollbar overflow-x-auto">
+        <ul className="px-header text-13 text-ink mx-auto flex w-max min-w-full items-center justify-center gap-6 pt-1 pb-[18px] font-medium whitespace-nowrap lg:gap-10">
+          {HEADER_NAV.map((item) => (
+            <li key={item.key}>
+              <Link href={item.href} className="hover:text-muted">
+                {dict.header.nav[item.key]}
+              </Link>
+            </li>
+          ))}
+          <li className="md:hidden">
+            <Link href="/favorites" className="hover:text-muted">
+              {dict.header.favorites}
+            </Link>
+          </li>
+          {accounts && (
+            <li className="md:hidden">
+              <Link href="/profile" className="hover:text-muted">
+                {dict.header.profile}
+              </Link>
+            </li>
+          )}
+          <li className="md:hidden">
+            <PreferenceSwitchers />
+          </li>
+        </ul>
+      </nav>
     </header>
   );
 }

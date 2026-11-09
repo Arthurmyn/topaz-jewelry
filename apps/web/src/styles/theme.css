@@ -1,0 +1,122 @@
+/*
+ * THEME: the single place for visual tokens (colors, font, type scale, layout).
+ * The values come from the Figma wireframe v0 and are TEMPORARY: change them here and
+ * every component follows. Components must use these tokens, never raw hex values.
+ */
+@theme {
+  /* Palette (wireframe v0) */
+  --color-ink: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-border: #dedede;
+  --color-soft: #f5f2ed;
+  --color-placeholder: #e5e3de; /* Figma uses #E5E3DE */
+  --color-dark: #211c1f;
+  --color-muted-on-dark: #ccc7c7;
+  --color-white: #ffffff;
+  /* Not in the wireframe: validation messages need a visible state color. Temporary. */
+  --color-error: #b3261e;
+
+  /* Typeface (wireframe uses Inter; Cyrillic subset is loaded in the root layout) */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  /* Type scale, named by pixel size as in the wireframe. Line heights are Figma's "auto"
+     values (Chrome would round Inter's natural height differently and drift the layout). */
+  --text-12: 12px;
+  --text-12--line-height: 15px;
+  --text-13: 13px;
+  --text-13--line-height: 16px;
+  --text-14: 14px;
+  --text-14--line-height: 17px;
+  --text-15: 15px;
+  --text-15--line-height: 18px;
+  --text-16: 16px;
+  --text-16--line-height: 19px;
+  --text-18: 18px;
+  --text-18--line-height: 22px;
+  --text-20: 20px;
+  --text-20--line-height: 24px;
+  --text-22: 22px;
+  --text-22--line-height: 27px;
+  --text-24: 24px;
+  --text-24--line-height: 29px;
+  --text-28: 28px;
+  --text-28--line-height: 34px;
+  --text-32: 32px;
+  --text-32--line-height: 39px;
+  --text-36: 36px;
+  --text-36--line-height: 44px;
+  --text-40: 40px;
+  --text-40--line-height: 48px;
+  --text-56: 56px;
+  --text-56--line-height: 68px;
+
+  /* Letter spacing used by the wireframe */
+  --tracking-logo: 7px;
+  --tracking-eyebrow: 1.8px;
+  --tracking-button: 0.52px;
+
+  /* Radii (everything is square except the chat) */
+  --radius-chat: 16px;
+  --radius-bubble: 14px;
+  --radius-pill: 20px;
+
+  /* Layout */
+  --container-content: 1200px;
+
+  /* Motion: short and plain; disabled by prefers-reduced-motion in the components */
+  --animate-fade-in: fade-in 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+:root {
+  /* Side padding of full-width sections. 120px on the 1440 frame, shrinking on smaller screens. */
+  --page-pad: 120px;
+  --header-pad: 48px;
+}
+@media (max-width: 1279px) {
+  :root {
+    --page-pad: 64px;
+    --header-pad: 32px;
+  }
+}
+@media (max-width: 1023px) {
+  :root {
+    --page-pad: 32px;
+    --header-pad: 24px;
+  }
+}
+@media (max-width: 767px) {
+  :root {
+    --page-pad: 16px;
+    --header-pad: 16px;
+  }
+}
+
+@utility px-page {
+  padding-inline: var(--page-pad);
+}
+@utility px-header {
+  padding-inline: var(--header-pad);
+}
+@utility right-header {
+  right: var(--header-pad);
+}
+
+/*
+ * Admin panel aliases (admin keeps its own simple look and uses these older names).
+ * They map onto the tokens above and are not used by the storefront.
+ */
+@theme {
+  --color-paper: var(--color-white);
+  --color-sand: var(--color-soft);
+  --color-line: var(--color-border);
+  --color-gold-dark: var(--color-ink);
+  --font-serif: var(--font-sans);
+}

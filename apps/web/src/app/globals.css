@@ -1,67 +1,23 @@
 @import "tailwindcss";
-
-@theme {
-  /* Warm paper and greige grounds, one deep midnight for the strip and footer, gold only as a small accent. */
-  --color-paper: #fbfaf6;
-  --color-sand: #ece8de;
-  --color-sand-deep: #e1dbcc;
-  --color-ink: #17150f;
-  --color-muted: #666054;
-  --color-line: #d8d1c2;
-  --color-gold: #a67c2d;
-  --color-gold-dark: #85621f;
-  --color-deep: #121a2e;
-  --color-deep-text: #ebe6d9;
-  --color-deep-muted: #a8adbb;
-  --color-deep-line: #2a3450;
-
-  --font-sans: var(--font-jost), system-ui, sans-serif;
-  --font-serif: var(--font-cormorant), Georgia, serif;
-
-  /* Strong curves: the built-in ones are too weak for deliberate motion. */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-html {
-  scrollbar-color: var(--color-line) transparent;
-  scrollbar-width: thin;
-}
+@import "../styles/theme.css";
 
 body {
-  background: var(--color-paper);
+  /* The wireframe uses Inter's natural line height ("normal"), not Tailwind's 1.5. */
+  line-height: normal;
+  background: var(--color-white);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-weight: 400;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-h1,
-h2,
-h3 {
-  text-wrap: balance;
-}
-
-::selection {
-  background: var(--color-deep);
-  color: var(--color-deep-text);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-gold-dark);
-  outline-offset: 3px;
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
 }
 
-input[type="checkbox"] {
-  accent-color: var(--color-deep);
-}
-
-input,
-textarea,
-select {
-  caret-color: var(--color-gold-dark);
+::selection {
+  background: var(--color-dark);
+  color: var(--color-white);
 }
 
 .no-scrollbar {
@@ -69,79 +25,4 @@ select {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
-}
-
-/* Translucent chrome. Falls back to a solid surface when the user asks for less transparency. */
-.glass {
-  background: color-mix(in srgb, var(--color-paper) 88%, transparent);
-  backdrop-filter: blur(14px) saturate(160%);
-}
-@media (prefers-reduced-transparency: reduce) {
-  .glass {
-    background: var(--color-paper);
-    backdrop-filter: none;
-  }
-}
-
-/* ---- Motion ----------------------------------------------------------------
-   One authored moment: the hero rises in on page load. Everything else is a quiet
-   state change. All of it is opacity/transform only, and reduced-motion drops the movement. */
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.hero-intro > * {
-  animation: rise 700ms var(--ease-out) both;
-}
-.hero-intro > :nth-child(2) {
-  animation-delay: 90ms;
-}
-.hero-intro > :nth-child(3) {
-  animation-delay: 180ms;
-}
-
-/* Scroll reveal without JS: elements are visible by default and only animate where the
-   browser supports scroll-driven animations. */
-@keyframes reveal-in {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@supports (animation-timeline: view()) {
-  .reveal-on-scroll {
-    animation: reveal-in linear both;
-    animation-timeline: view();
-    animation-range: entry 4% entry 38%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-intro > * {
-    animation: fade 300ms ease both;
-  }
-  .reveal-on-scroll {
-    animation: none;
-  }
 }

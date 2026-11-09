@@ -42,11 +42,7 @@ export function HeroSlider({
         {photoLabel}
       </p>
       <div className="px-page mx-auto flex h-full w-full max-w-[1440px] flex-col items-start justify-end gap-5 py-12 md:py-20">
-        <div
-          key={index}
-          className="motion-safe:animate-fade-in flex flex-col items-start gap-5"
-          aria-live="polite"
-        >
+        <div key={index} className="hero-intro flex flex-col items-start gap-5" aria-live="polite">
           <p className="text-12 text-ink tracking-eyebrow font-medium uppercase">{slide.eyebrow}</p>
           <h1 className="text-36 md:text-56 text-ink font-medium md:leading-[64px]">
             {slide.title}

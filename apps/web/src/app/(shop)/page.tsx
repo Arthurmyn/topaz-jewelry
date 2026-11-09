@@ -48,12 +48,16 @@ export default async function HomePage() {
       />
 
       <Section innerClassName="py-16">
-        <ul className="no-scrollbar -mx-4 flex gap-6 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:justify-center md:gap-x-14 md:gap-y-8 md:overflow-visible md:px-0">
+        <ul className="reveal-group no-scrollbar -mx-4 flex gap-6 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:justify-center md:gap-x-14 md:gap-y-8 md:overflow-visible md:px-0">
           {categories.map((c) => (
             <li key={c.label} className="shrink-0">
               <Link href={c.href} className="group flex flex-col items-center gap-4">
-                <PhotoPlaceholder label={dict.common.photo} className="size-[120px] rounded-full" />
-                <span className="text-14 text-ink font-medium group-hover:underline">
+                <PhotoPlaceholder
+                  zoom
+                  label={dict.common.photo}
+                  className="size-[120px] rounded-full"
+                />
+                <span className="text-14 text-ink font-medium underline decoration-transparent underline-offset-4 transition-colors duration-150 group-hover:decoration-current">
                   {c.label}
                 </span>
               </Link>
@@ -69,7 +73,7 @@ export default async function HomePage() {
           linkLabel={dict.common.seeAll}
           href="/catalog"
         />
-        <ProductGrid>
+        <ProductGrid reveal>
           {bestsellers.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
@@ -81,7 +85,7 @@ export default async function HomePage() {
           label={h.wedding.photo}
           className="h-[360px] w-full lg:h-full lg:w-1/2 lg:shrink-0"
         />
-        <div className="bg-soft flex min-w-0 flex-1 flex-col items-start justify-center gap-5 px-6 py-16 md:px-16 xl:px-24">
+        <div className="bg-soft reveal flex min-w-0 flex-1 flex-col items-start justify-center gap-5 px-6 py-16 md:px-16 xl:px-24">
           <p className="text-12 text-muted tracking-eyebrow font-medium uppercase">
             {h.wedding.eyebrow}
           </p>
@@ -96,8 +100,10 @@ export default async function HomePage() {
       </section>
 
       <Section innerClassName="flex flex-col items-center gap-8 py-[72px]">
-        <h2 className="text-24 md:text-28 text-ink text-center font-medium">{h.trust.title}</h2>
-        <ul className="grid w-full grid-cols-2 gap-6 lg:grid-cols-4">
+        <h2 className="reveal text-24 md:text-28 text-ink text-center font-medium">
+          {h.trust.title}
+        </h2>
+        <ul className="reveal-group grid w-full grid-cols-2 gap-6 lg:grid-cols-4">
           {h.trust.items.map((item) => (
             <li
               key={item.title}
@@ -111,11 +117,15 @@ export default async function HomePage() {
       </Section>
 
       <Section innerClassName="pb-[72px]">
-        <ul className="grid gap-6 md:grid-cols-3">
+        <ul className="reveal-group grid gap-6 md:grid-cols-3">
           {tiles.map((t) => (
             <li key={t.label}>
               <Link href={t.href} className="group flex flex-col items-start gap-4">
-                <PhotoPlaceholder label={h.tilePhoto} className="h-[360px] w-full md:h-[480px]" />
+                <PhotoPlaceholder
+                  zoom
+                  label={h.tilePhoto}
+                  className="h-[360px] w-full md:h-[480px]"
+                />
                 <span className="text-20 text-ink font-medium">{t.label}</span>
                 <span className="text-13 text-ink font-medium underline underline-offset-2">
                   {dict.common.see}
@@ -133,7 +143,7 @@ export default async function HomePage() {
           linkLabel={dict.common.seeAll}
           href="/catalog/rings"
         />
-        <ProductGrid>
+        <ProductGrid reveal>
           {rings.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
@@ -144,7 +154,7 @@ export default async function HomePage() {
         bg="dark"
         innerClassName="flex flex-col gap-12 py-[88px] lg:flex-row lg:items-center lg:gap-20"
       >
-        <div className="flex flex-1 flex-col items-start gap-5">
+        <div className="reveal flex flex-1 flex-col items-start gap-5">
           <p className="text-12 text-muted-on-dark tracking-eyebrow font-medium uppercase">
             {h.stores.eyebrow}
           </p>
@@ -156,7 +166,7 @@ export default async function HomePage() {
             <Link href="/stores">{h.stores.cta}</Link>
           </Button>
         </div>
-        <ul className="flex w-full flex-1 flex-col gap-6 sm:flex-row">
+        <ul className="reveal-group flex w-full flex-1 flex-col gap-6 sm:flex-row">
           {stores.map((s) => (
             <li key={s.id} className="border-muted-on-dark flex flex-1 flex-col gap-2.5 border p-7">
               <p className="text-20 font-medium text-white">{s.city}</p>
@@ -168,7 +178,7 @@ export default async function HomePage() {
       </Section>
 
       <Section innerClassName="flex flex-col gap-12 py-24 lg:flex-row lg:items-center lg:gap-20">
-        <div className="flex flex-1 flex-col items-start gap-5">
+        <div className="reveal flex flex-1 flex-col items-start gap-5">
           <p className="text-12 text-muted tracking-eyebrow font-medium uppercase">
             {h.brand.eyebrow}
           </p>
@@ -186,7 +196,7 @@ export default async function HomePage() {
         />
       </Section>
 
-      <Section bg="soft" innerClassName="flex flex-col items-center gap-5 py-20 text-center">
+      <Section bg="soft" innerClassName="reveal flex flex-col items-center gap-5 py-20 text-center">
         <h2 className="text-28 md:text-32 text-ink font-medium">{h.newsletter.title}</h2>
         <p className="text-16 text-muted">{h.newsletter.text}</p>
         <NewsletterForm />

@@ -20,7 +20,7 @@ export function Chip({
       type="button"
       aria-pressed={removable ? undefined : selected}
       className={cn(
-        "text-13 flex items-center justify-center border font-medium whitespace-nowrap transition-colors duration-150 disabled:opacity-40",
+        "text-13 press flex items-center justify-center border font-medium whitespace-nowrap disabled:opacity-40",
         SIZES[size],
         selected
           ? "border-ink bg-ink text-white"

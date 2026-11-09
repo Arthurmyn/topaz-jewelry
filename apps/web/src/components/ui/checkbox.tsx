@@ -14,7 +14,7 @@ export function Checkbox({
       <input type="checkbox" className="peer sr-only" {...props} />
       <span
         aria-hidden="true"
-        className="border-muted peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:outline-ink size-4 shrink-0 border bg-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
+        className="border-muted peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:outline-ink size-4 shrink-0 border bg-white transition-[background-color,border-color,transform] duration-150 ease-out peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 motion-safe:peer-active:scale-90"
       />
       <span>{label}</span>
     </label>

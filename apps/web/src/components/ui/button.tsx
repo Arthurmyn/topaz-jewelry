@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
  * `dark`, `outline`, `light` come from the wireframe. `ghost` and `danger` exist only for the admin panel.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center text-13 font-medium uppercase tracking-button transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center text-13 font-medium uppercase tracking-button press disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {

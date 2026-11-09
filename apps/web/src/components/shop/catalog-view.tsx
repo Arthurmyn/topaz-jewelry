@@ -261,8 +261,14 @@ function Results({
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-10">
       <ProductGrid columns={3}>
-        {products.slice(0, shown).map((p) => (
-          <ProductCard key={p.id} product={p} />
+        {products.slice(0, shown).map((p, i) => (
+          <div
+            key={p.id}
+            className="card-in min-w-0"
+            style={{ "--i": i % PAGE_SIZE } as React.CSSProperties}
+          >
+            <ProductCard product={p} />
+          </div>
         ))}
       </ProductGrid>
       <div className="flex flex-col items-center gap-4">

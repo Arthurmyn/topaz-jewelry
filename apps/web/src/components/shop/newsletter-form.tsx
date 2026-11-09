@@ -27,7 +27,7 @@ export function NewsletterForm() {
 
   if (done) {
     return (
-      <p role="status" className="text-16 text-ink">
+      <p role="status" className="fade-in text-16 text-ink">
         {t.success}
       </p>
     );

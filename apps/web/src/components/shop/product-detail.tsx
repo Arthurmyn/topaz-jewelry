@@ -154,7 +154,9 @@ export function ProductDetail({ product }: { product: Product }) {
         <p className="text-14 text-muted w-full">{stockLine}</p>
 
         <Button className="w-full" onClick={add}>
-          {added ? p.added : p.addToCart}
+          <span key={String(added)} className="fade-in">
+            {added ? p.added : p.addToCart}
+          </span>
         </Button>
         <Button variant="outline" className="w-full" onClick={askWhatsapp}>
           {p.whatsapp}
@@ -165,11 +167,13 @@ export function ProductDetail({ product }: { product: Product }) {
             type="button"
             onClick={() => toggleFavorite(product.id)}
             aria-pressed={isFavorite}
-            className="hover:text-muted whitespace-pre"
+            className="press hover:text-muted whitespace-pre transition-colors duration-150"
           >
-            {isFavorite ? p.favoriteRemove : p.favoriteAdd}
+            <span key={String(isFavorite)} className="pop inline-block">
+              {isFavorite ? p.favoriteRemove : p.favoriteAdd}
+            </span>
           </button>
-          <Link href="/stores" className="hover:text-muted">
+          <Link href="/stores" className="hover:text-muted transition-colors duration-150">
             {p.pickup}
           </Link>
         </div>

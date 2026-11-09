@@ -32,7 +32,7 @@ export function FittingForm() {
 
   if (done) {
     return (
-      <p role="status" className="text-16 text-ink">
+      <p role="status" className="fade-in text-16 text-ink">
         {f.success}
       </p>
     );

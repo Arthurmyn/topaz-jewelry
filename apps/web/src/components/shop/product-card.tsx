@@ -18,9 +18,9 @@ export function ProductCard({ product }: { product: Product }) {
   const money = useMoney();
   const purity = startingPurity(product);
   return (
-    <Link href={productHref(product)} className="group flex min-w-0 flex-col gap-3">
-      <PhotoPlaceholder label={dict.common.productPhoto} className="h-[340px] w-full" />
-      <p className="text-15 text-ink w-full font-medium group-hover:underline">
+    <Link href={productHref(product)} className="press group flex min-w-0 flex-col gap-3">
+      <PhotoPlaceholder zoom label={dict.common.productPhoto} className="h-[340px] w-full" />
+      <p className="text-15 text-ink w-full font-medium underline decoration-transparent underline-offset-4 transition-colors duration-150 group-hover:decoration-current">
         {productTitle(product, dict)}
       </p>
       <p className="text-13 text-muted w-full">{productSubtitle(product, purity, dict)}</p>

@@ -15,7 +15,7 @@ export function PreferenceSwitchers() {
   const locale = useLocale();
   const { currency } = useCurrency();
   const { setLocale, setCurrency } = usePreferences();
-  const trigger = "text-13 text-ink hover:text-muted";
+  const trigger = "text-13 text-ink transition-colors duration-150 hover:text-muted";
 
   return (
     <div className="flex items-center gap-4">

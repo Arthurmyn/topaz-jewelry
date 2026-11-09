@@ -8,7 +8,7 @@ import { HEADER_NAV } from "@/lib/routes";
 import { HeaderSearch } from "./header-search";
 import { PreferenceSwitchers } from "./preference-switchers";
 
-const link = "text-13 text-ink hover:text-muted whitespace-nowrap";
+const link = "text-13 text-ink link-grow whitespace-nowrap";
 
 /** Wireframe header: search + language/currency on the left, logo, account links and cart on the right. */
 export function Header() {
@@ -52,19 +52,19 @@ export function Header() {
         <ul className="px-header text-13 text-ink mx-auto flex w-max min-w-full items-center justify-center gap-6 pt-1 pb-[18px] font-medium whitespace-nowrap lg:gap-10">
           {HEADER_NAV.map((item) => (
             <li key={item.key}>
-              <Link href={item.href} className="hover:text-muted">
+              <Link href={item.href} className="link-grow">
                 {dict.header.nav[item.key]}
               </Link>
             </li>
           ))}
           <li className="md:hidden">
-            <Link href="/favorites" className="hover:text-muted">
+            <Link href="/favorites" className="link-grow">
               {dict.header.favorites}
             </Link>
           </li>
           {accounts && (
             <li className="md:hidden">
-              <Link href="/profile" className="hover:text-muted">
+              <Link href="/profile" className="link-grow">
                 {dict.header.profile}
               </Link>
             </li>

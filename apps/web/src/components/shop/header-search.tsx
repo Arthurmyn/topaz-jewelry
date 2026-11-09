@@ -29,6 +29,7 @@ export function HeaderSearch() {
 
   return (
     <form
+      className="fade-in"
       role="search"
       aria-label={dict.header.searchLabel}
       onSubmit={(e) => {

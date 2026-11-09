@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SITE } from "@/content/site";
 import { getDict } from "@/lib/i18n-server";
 
-const link = "text-14 text-muted hover:text-ink";
+const link = "text-14 text-muted transition-colors duration-150 hover:text-ink";
 
 export async function Footer() {
   const dict = await getDict();

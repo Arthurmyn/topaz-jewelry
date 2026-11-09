@@ -1,0 +1,239 @@
+/*
+ * MOTION: one place for the storefront's animation. Rules of the house:
+ *  - transform and opacity only (plus grid-template-rows for collapsing panels);
+ *  - strong ease-out, UI under 300ms, exits shorter than entrances;
+ *  - transitions (not keyframes) for anything that can be triggered repeatedly;
+ *  - content is visible by default, so a failed script or old browser never hides the page;
+ *  - hover effects rely on Tailwind's `hover:` (gated to hover-capable pointers) or the media query below;
+ *  - prefers-reduced-motion keeps opacity/color feedback and drops movement.
+ */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+@keyframes pop {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Fill mode is `backwards` on purpose: after an entrance ends, normal styles (e.g. :active scale) apply again. */
+
+/* Press feedback: instant (pointer-down), interruptible (a transition, not a keyframe). */
+.press {
+  transition-property: background-color, color, border-color, opacity, transform;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
+}
+.press:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 100ms;
+}
+
+/* Hero: the one authored moment. Eyebrow, title, text and button rise in, 70ms apart. */
+.hero-intro > * {
+  animation: rise 600ms var(--ease-out) backwards;
+}
+.hero-intro > :nth-child(2) {
+  animation-delay: 70ms;
+}
+.hero-intro > :nth-child(3) {
+  animation-delay: 140ms;
+}
+.hero-intro > :nth-child(4) {
+  animation-delay: 210ms;
+}
+
+/* Scroll reveal without JS: visible by default, animated only where scroll-driven animations exist.
+   `--i` (set inline) shifts the range a little so siblings arrive in a short cascade. */
+@supports (animation-timeline: view()) {
+  .reveal,
+  .reveal-group > * {
+    animation: reveal-in linear backwards;
+    animation-timeline: view();
+    animation-range: entry calc(var(--i, 0) * 4%) entry calc(30% + var(--i, 0) * 4%);
+  }
+}
+.reveal-group > :nth-child(2) {
+  --i: 1;
+}
+.reveal-group > :nth-child(3) {
+  --i: 2;
+}
+.reveal-group > :nth-child(4) {
+  --i: 3;
+}
+.reveal-group > :nth-child(5) {
+  --i: 4;
+}
+.reveal-group > :nth-child(6) {
+  --i: 5;
+}
+
+/* Cards that mount (catalog results, "show more"): short cascade capped by the batch size. */
+.card-in {
+  animation: card-in 260ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+/* Chat: bubbles slide up, quick replies cascade. */
+.bubble-in {
+  animation: bubble-in 220ms var(--ease-out) backwards;
+}
+.stagger-in > * {
+  animation: bubble-in 220ms var(--ease-out) backwards;
+}
+.stagger-in > :nth-child(2) {
+  animation-delay: 35ms;
+}
+.stagger-in > :nth-child(3) {
+  animation-delay: 70ms;
+}
+.stagger-in > :nth-child(4) {
+  animation-delay: 105ms;
+}
+.stagger-in > :nth-child(5) {
+  animation-delay: 140ms;
+}
+.stagger-in > :nth-child(6) {
+  animation-delay: 175ms;
+}
+.stagger-in > :nth-child(7) {
+  animation-delay: 210ms;
+}
+
+/* Small state cues */
+.pop {
+  animation: pop 160ms var(--ease-out);
+}
+.fade-in {
+  animation: fade 180ms var(--ease-out) both;
+}
+
+/* Invalid fields shake once when they become invalid; the error line fades in. */
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  animation: shake 280ms var(--ease-out);
+}
+[role="alert"] {
+  animation: fade 160ms var(--ease-out) both;
+}
+
+/* Animated underline for navigation links (grows from the left). */
+.link-grow {
+  position: relative;
+}
+.link-grow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .link-grow:hover::after {
+    transform: scaleX(1);
+  }
+}
+.link-grow:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Reduced motion: no movement, but opacity and color feedback stay. */
+@media (prefers-reduced-motion: reduce) {
+  .press:active:not(:disabled) {
+    transform: none;
+  }
+  .hero-intro > *,
+  .card-in,
+  .bubble-in,
+  .stagger-in > * {
+    animation-name: fade;
+    animation-delay: 0ms;
+  }
+  .reveal,
+  .reveal-group > * {
+    animation: none;
+  }
+  .pop,
+  input[aria-invalid="true"],
+  select[aria-invalid="true"],
+  textarea[aria-invalid="true"] {
+    animation: none;
+  }
+  .link-grow::after {
+    transition: none;
+  }
+}

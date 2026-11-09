@@ -63,7 +63,11 @@
   /* Layout */
   --container-content: 1200px;
 
-  /* Motion: short and plain; disabled by prefers-reduced-motion in the components */
+  /* Motion curves (strong ease-out for arrivals, ease-in-out for movement already on screen) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* Motion: short and plain; reduced-motion variants live in styles/motion.css */
   --animate-fade-in: fade-in 300ms cubic-bezier(0.23, 1, 0.32, 1);
   @keyframes fade-in {
     from {

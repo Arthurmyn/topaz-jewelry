@@ -1,250 +1,395 @@
-import Link from "next/link";
-import { ru } from "@/content/ru";
-import { serverApi } from "@/lib/api/client";
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { Input, Select } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Chip } from "@/components/ui/chip";
+import { Dropdown } from "@/components/ui/dropdown";
+import { Input } from "@/components/ui/input";
+import { useCurrency, useDict, useMoney } from "@/components/providers/app-providers";
+import {
+  PRODUCTS,
+  productsByCategory,
+  RING_TYPES,
+  STONES,
+  type Category,
+} from "@/content/mock/products";
+import { cn } from "@/lib/cn";
+import {
+  availableSizes,
+  filterProducts,
+  hasActiveFilters,
+  parseFilters,
+  serializeFilters,
+  toggle,
+  EMPTY_FILTERS,
+  type Filters,
+  type SortKey,
+} from "@/lib/catalog";
+import { convertKzt, toKzt } from "@/lib/currency";
+import { fmt, plural } from "@/lib/text";
+import { useLocale } from "@/components/providers/app-providers";
+import { FilterGroup } from "./filter-group";
 import { ProductCard } from "./product-card";
+import { ProductGrid } from "./product-grid";
 
-type SearchParams = Record<string, string | string[] | undefined>;
+const PAGE_SIZE = 9;
+const CATEGORY_LIST: Category[] = ["rings", "earrings", "necklaces", "bracelets", "pendants"];
 
-const FILTER_KEYS = ["metal", "purity", "stone", "price_min", "price_max", "in_stock", "q", "sort"];
+/** Catalog page body: breadcrumbs, title row, active filters, sidebar filters, results. */
+export function CatalogView({ category }: { category: Category | null }) {
+  const dict = useDict();
+  const locale = useLocale();
+  const money = useMoney();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-function toList(v: string | string[] | undefined): string[] {
-  return v === undefined ? [] : Array.isArray(v) ? v : [v];
-}
+  const filters = useMemo(() => parseFilters(searchParams), [searchParams]);
+  const scope = category ? productsByCategory(category) : PRODUCTS;
+  const results = useMemo(
+    () => filterProducts(PRODUCTS, filters, category, dict),
+    [filters, category, dict],
+  );
+  const sizes = availableSizes(scope);
+  const c = dict.catalog;
 
-function buildQuery(sp: SearchParams, overrides: Record<string, string | undefined> = {}) {
-  const usp = new URLSearchParams();
-  for (const key of [...FILTER_KEYS, "page"]) {
-    if (key in overrides) continue;
-    toList(sp[key]).forEach((v) => usp.append(key, v));
+  function update(next: Filters) {
+    const qs = serializeFilters(next).toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
-  for (const [k, v] of Object.entries(overrides)) if (v) usp.set(k, v);
-  const s = usp.toString();
-  return s ? `?${s}` : "";
-}
 
-export async function CatalogView({
-  category,
-  searchParams,
-  basePath,
-}: {
-  category?: string;
-  searchParams: SearchParams;
-  basePath: string;
-}) {
-  const api = serverApi(300);
-  const page = Math.max(1, Number(toList(searchParams.page)[0] ?? 1) || 1);
-  const sort = toList(searchParams.sort)[0] as "newest" | "price_asc" | "price_desc" | undefined;
+  const title = category ? dict.categories[category] : c.all;
+  const crumbs = [
+    { label: dict.common.home, href: "/" },
+    ...(category ? [{ label: c.all, href: "/catalog" }, { label: title }] : [{ label: c.all }]),
+  ];
 
-  const [{ data }, { data: categories }] = await Promise.all([
-    api.GET("/api/v1/products", {
-      params: {
-        query: {
-          category,
-          metal: toList(searchParams.metal),
-          purity: toList(searchParams.purity).map(Number).filter(Boolean),
-          stone: toList(searchParams.stone),
-          price_min: toList(searchParams.price_min)[0]
-            ? Number(toList(searchParams.price_min)[0])
-            : undefined,
-          price_max: toList(searchParams.price_max)[0]
-            ? Number(toList(searchParams.price_max)[0])
-            : undefined,
-          in_stock: toList(searchParams.in_stock).includes("true"),
-          q: toList(searchParams.q)[0],
-          sort,
-          page,
-          page_size: 24,
-          include: "facets",
-        },
-      },
-    }),
-    api.GET("/api/v1/categories"),
-  ]);
-
-  const items = data?.items ?? [];
-  const facets = data?.facets;
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1;
-  const selected = (key: string, value: string) => toList(searchParams[key]).includes(value);
+  const chips = buildChips(filters, dict, money, update);
+  const resultsKey = serializeFilters(filters).toString();
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="font-serif text-4xl">{ru.catalog.title}</h1>
+    <>
+      <Breadcrumbs items={crumbs} label={dict.common.home} />
 
-      <nav className="mt-4 flex flex-wrap gap-2 text-sm">
-        <Link
-          href="/catalog"
-          className={`rounded-sm border px-3 py-1 ${!category ? "border-ink" : "border-line"}`}
-        >
-          {ru.catalog.allCategories}
-        </Link>
-        {(categories ?? []).map((c) => (
-          <Link
-            key={c.slug}
-            href={`/catalog/${c.slug}`}
-            className={`rounded-sm border px-3 py-1 ${category === c.slug ? "border-ink" : "border-line"}`}
+      <div className="px-page flex items-center gap-4 py-5 max-sm:flex-col max-sm:items-start">
+        <div className="flex flex-1 flex-col gap-1.5">
+          <h1 className="text-32 md:text-40 text-ink font-medium">
+            {filters.q ? fmt(c.searchResults, { q: filters.q }) : title}
+          </h1>
+          <p className="text-14 text-muted">{plural(c.count, results.length, locale)}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            className="lg:hidden"
+            onClick={() => setFiltersOpen((v) => !v)}
+            aria-expanded={filtersOpen}
           >
-            {c.name}
-          </Link>
-        ))}
-      </nav>
+            {filtersOpen ? c.hideFilters : c.showFilters}
+          </Button>
+          <Dropdown<SortKey>
+            label={fmt(c.sortLabel, { value: c.sort[filters.sort] })}
+            value={filters.sort}
+            onChange={(sort) => update({ ...filters, sort })}
+            align="right"
+            options={(["popular", "new", "priceAsc", "priceDesc"] as SortKey[]).map((k) => ({
+              value: k,
+              label: c.sort[k],
+            }))}
+            trigger={
+              <span className="text-ink">{fmt(c.sortLabel, { value: c.sort[filters.sort] })}</span>
+            }
+            triggerClassName="border border-border px-4 py-3 text-13 gap-4"
+          />
+        </div>
+      </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[260px_1fr]">
-        {/* Plain GET form: filters live in the URL, work without JS and are shareable. */}
-        <form method="get" action={basePath} className="space-y-5 text-sm">
-          <details open className="lg:open:block">
-            <summary className="mb-3 cursor-pointer font-medium lg:hidden">
-              {ru.catalog.filters}
-            </summary>
-            <div className="space-y-5">
-              <div>
-                <Input
-                  name="q"
-                  defaultValue={toList(searchParams.q)[0]}
-                  placeholder={ru.catalog.search}
-                />
-              </div>
-              <FilterGroup title={ru.catalog.metal}>
-                {facets?.metal.map((f) => (
-                  <Check
-                    key={f.value}
-                    name="metal"
-                    value={f.value}
-                    checked={selected("metal", f.value)}
-                    label={`${f.label} (${f.count})`}
-                  />
-                ))}
-              </FilterGroup>
-              <FilterGroup title={ru.catalog.purity}>
-                {facets?.purity.map((f) => (
-                  <Check
-                    key={f.value}
-                    name="purity"
-                    value={f.value}
-                    checked={selected("purity", f.value)}
-                    label={`${f.label} (${f.count})`}
-                  />
-                ))}
-              </FilterGroup>
-              <FilterGroup title={ru.catalog.stone}>
-                {facets?.stone.map((f) => (
-                  <Check
-                    key={f.value}
-                    name="stone"
-                    value={f.value}
-                    checked={selected("stone", f.value)}
-                    label={`${f.label} (${f.count})`}
-                  />
-                ))}
-              </FilterGroup>
-              <FilterGroup title={ru.catalog.price}>
-                <div className="flex gap-2">
-                  <Input
-                    name="price_min"
-                    type="number"
-                    min={0}
-                    placeholder={ru.catalog.priceFrom}
-                    defaultValue={toList(searchParams.price_min)[0]}
-                  />
-                  <Input
-                    name="price_max"
-                    type="number"
-                    min={0}
-                    placeholder={ru.catalog.priceTo}
-                    defaultValue={toList(searchParams.price_max)[0]}
-                  />
-                </div>
-              </FilterGroup>
-              <Check
-                name="in_stock"
-                value="true"
-                checked={selected("in_stock", "true")}
-                label={ru.catalog.inStock}
-              />
-              <div>
-                <p className="mb-2 font-medium">{ru.catalog.sort}</p>
-                <Select name="sort" defaultValue={sort ?? "newest"}>
-                  {Object.entries(ru.catalog.sortOptions).map(([v, l]) => (
-                    <option key={v} value={v}>
-                      {l}
-                    </option>
+      {chips.length > 0 && (
+        <div className="px-page flex flex-wrap items-center gap-3 pb-6">
+          {chips.map((chip) => (
+            <Chip
+              key={chip.key}
+              selected
+              removable
+              aria-label={fmt(c.removeFilter, { name: chip.label })}
+              onClick={chip.remove}
+            >
+              {chip.label}
+            </Chip>
+          ))}
+          <button
+            type="button"
+            onClick={() => update({ ...EMPTY_FILTERS, sort: filters.sort })}
+            className="text-13 text-ink font-medium underline underline-offset-2"
+          >
+            {c.resetAll}
+          </button>
+        </div>
+      )}
+
+      <div className="px-page flex flex-col gap-12 pt-4 pb-[72px] lg:flex-row">
+        <aside
+          aria-label={c.showFilters}
+          className={cn(
+            "w-full flex-col gap-7 lg:flex lg:w-[260px] lg:shrink-0",
+            filtersOpen ? "flex" : "hidden",
+          )}
+        >
+          {(category === null || category === "rings") && (
+            <FilterGroup title={c.filters.category}>
+              {category === null
+                ? CATEGORY_LIST.map((cat) => (
+                    <Checkbox
+                      key={cat}
+                      label={dict.categories[cat]}
+                      checked={filters.cats.includes(cat)}
+                      onChange={() => update({ ...filters, cats: toggle(filters.cats, cat) })}
+                    />
+                  ))
+                : RING_TYPES.map((type) => (
+                    <Checkbox
+                      key={type}
+                      label={dict.ringTypes[type]}
+                      checked={filters.types.includes(type)}
+                      onChange={() => update({ ...filters, types: toggle(filters.types, type) })}
+                    />
                   ))}
-                </Select>
-              </div>
-              <div className="flex gap-2">
-                <Button type="submit">{ru.catalog.apply}</Button>
-                <Button asChild variant="outline">
-                  <Link href={basePath}>{ru.catalog.reset}</Link>
-                </Button>
-              </div>
-            </div>
-          </details>
-        </form>
-
-        <section>
-          <p className="text-muted mb-4 text-sm">{ru.catalog.found(data?.total ?? 0)}</p>
-          {items.length === 0 ? (
-            <p className="py-16 text-center">{ru.catalog.empty}</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 xl:grid-cols-4">
-              {items.map((p) => (
-                <ProductCard key={p.slug} product={p} />
-              ))}
-            </div>
+            </FilterGroup>
           )}
 
-          {totalPages > 1 && (
-            <div className="mt-10 flex items-center justify-center gap-4 text-sm">
-              {page > 1 && (
-                <Link href={`${basePath}${buildQuery(searchParams, { page: String(page - 1) })}`}>
-                  {ru.catalog.prev}
-                </Link>
-              )}
-              <span className="text-muted">{ru.catalog.page(page, totalPages)}</span>
-              {page < totalPages && (
-                <Link href={`${basePath}${buildQuery(searchParams, { page: String(page + 1) })}`}>
-                  {ru.catalog.next}
-                </Link>
-              )}
-            </div>
+          <FilterGroup title={c.filters.metal}>
+            {([585, 750] as const).map((purity) => (
+              <Checkbox
+                key={purity}
+                label={dict.metals[String(purity) as "585" | "750"]}
+                checked={filters.metals.includes(purity)}
+                onChange={() => update({ ...filters, metals: toggle(filters.metals, purity) })}
+              />
+            ))}
+          </FilterGroup>
+
+          <FilterGroup title={c.filters.stone}>
+            {STONES.map((stone) => (
+              <Checkbox
+                key={stone}
+                label={dict.stones[stone]}
+                checked={filters.stones.includes(stone)}
+                onChange={() => update({ ...filters, stones: toggle(filters.stones, stone) })}
+              />
+            ))}
+          </FilterGroup>
+
+          <FilterGroup title={c.filters.price}>
+            <PriceInputs filters={filters} onChange={update} />
+          </FilterGroup>
+
+          {sizes.length > 0 && (
+            <FilterGroup title={c.filters.size}>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((size) => (
+                  <Chip
+                    key={size}
+                    size="sm"
+                    selected={filters.sizes.includes(size)}
+                    onClick={() => update({ ...filters, sizes: toggle(filters.sizes, size) })}
+                  >
+                    {size}
+                  </Chip>
+                ))}
+              </div>
+            </FilterGroup>
           )}
-        </section>
+
+          <FilterGroup title={c.filters.availability}>
+            <Checkbox
+              label={c.availability.inStock}
+              checked={filters.stock.includes("in")}
+              onChange={() => update({ ...filters, stock: toggle(filters.stock, "in") })}
+            />
+            <Checkbox
+              label={c.availability.onOrder}
+              checked={filters.stock.includes("order")}
+              onChange={() => update({ ...filters, stock: toggle(filters.stock, "order") })}
+            />
+          </FilterGroup>
+        </aside>
+
+        <Results
+          key={resultsKey}
+          products={results}
+          hasFilters={hasActiveFilters(filters)}
+          onReset={() => update(EMPTY_FILTERS)}
+        />
+      </div>
+    </>
+  );
+}
+
+/** Remounted (via key) whenever filters change, so "show more" starts from the first page again. */
+function Results({
+  products,
+  hasFilters,
+  onReset,
+}: {
+  products: ReturnType<typeof filterProducts>;
+  hasFilters: boolean;
+  onReset: () => void;
+}) {
+  const dict = useDict();
+  const c = dict.catalog;
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
+  if (products.length === 0) {
+    return (
+      <div className="flex min-w-0 flex-1 flex-col items-center gap-3 py-16 text-center">
+        <p className="text-20 text-ink font-medium">{c.empty}</p>
+        <p className="text-14 text-muted">{c.emptyHint}</p>
+        {hasFilters && (
+          <Button variant="outline" className="mt-4" onClick={onReset}>
+            {c.resetAll}
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  const shown = Math.min(visible, products.length);
+  return (
+    <div className="flex min-w-0 flex-1 flex-col gap-10">
+      <ProductGrid columns={3}>
+        {products.slice(0, shown).map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </ProductGrid>
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-13 text-muted">{fmt(c.shown, { shown, total: products.length })}</p>
+        {shown < products.length && (
+          <Button variant="outline" onClick={() => setVisible((v) => v + PAGE_SIZE)}>
+            {c.loadMore}
+          </Button>
+        )}
       </div>
     </div>
   );
 }
 
-function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+/** Price bounds are typed in the selected currency and stored in KZT in the URL. */
+function PriceInputs({ filters, onChange }: { filters: Filters; onChange: (f: Filters) => void }) {
+  const dict = useDict();
+  const { currency, rates } = useCurrency();
+  const symbol = dict.currencyShort[currency];
+  const shownValue = (kzt: number | null) =>
+    kzt === null ? "" : String(convertKzt(kzt, currency, rates));
+
+  function commit(field: "priceMin" | "priceMax", raw: string) {
+    const trimmed = raw.trim();
+    const value = trimmed === "" ? null : Number(trimmed);
+    if (value !== null && (!Number.isFinite(value) || value < 0)) return;
+    const kzt = value === null ? null : Math.round(toKzt(value, currency, rates));
+    if (kzt === filters[field]) return;
+    onChange({ ...filters, [field]: kzt });
+  }
+
+  const common = {
+    type: "number" as const,
+    min: 0,
+    inputMode: "numeric" as const,
+    className: "h-auto py-3 text-13",
+  };
+  const resetKey = `${filters.priceMin}-${filters.priceMax}-${currency}`;
   return (
-    <fieldset>
-      <legend className="mb-2 font-medium">{title}</legend>
-      <div className="space-y-1">{children}</div>
-    </fieldset>
+    <div className="flex w-full gap-3" key={resetKey}>
+      <Input
+        {...common}
+        aria-label={fmt(dict.catalog.priceFrom, { currency: symbol })}
+        placeholder={fmt(dict.catalog.priceFrom, { currency: symbol })}
+        defaultValue={shownValue(filters.priceMin)}
+        onBlur={(e) => commit("priceMin", e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+      />
+      <Input
+        {...common}
+        aria-label={fmt(dict.catalog.priceTo, { currency: symbol })}
+        placeholder={fmt(dict.catalog.priceTo, { currency: symbol })}
+        defaultValue={shownValue(filters.priceMax)}
+        onBlur={(e) => commit("priceMax", e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+      />
+    </div>
   );
 }
 
-function Check({
-  name,
-  value,
-  checked,
-  label,
-}: {
-  name: string;
-  value: string;
-  checked: boolean;
-  label: string;
-}) {
-  return (
-    <label className="flex items-center gap-2">
-      <input
-        type="checkbox"
-        name={name}
-        value={value}
-        defaultChecked={checked}
-        className="accent-gold size-4"
-      />
-      {label}
-    </label>
+function buildChips(
+  f: Filters,
+  dict: ReturnType<typeof useDict>,
+  money: (kzt: number) => string,
+  update: (f: Filters) => void,
+): { key: string; label: string; remove: () => void }[] {
+  const c = dict.catalog;
+  const chips: { key: string; label: string; remove: () => void }[] = [];
+  if (f.q)
+    chips.push({
+      key: "q",
+      label: fmt(c.queryChip, { q: f.q }),
+      remove: () => update({ ...f, q: "" }),
+    });
+  f.cats.forEach((v) =>
+    chips.push({
+      key: `cat-${v}`,
+      label: dict.categories[v],
+      remove: () => update({ ...f, cats: f.cats.filter((x) => x !== v) }),
+    }),
   );
+  f.types.forEach((v) =>
+    chips.push({
+      key: `type-${v}`,
+      label: dict.ringTypes[v],
+      remove: () => update({ ...f, types: f.types.filter((x) => x !== v) }),
+    }),
+  );
+  f.metals.forEach((v) =>
+    chips.push({
+      key: `metal-${v}`,
+      label: dict.metals[String(v) as "585" | "750"],
+      remove: () => update({ ...f, metals: f.metals.filter((x) => x !== v) }),
+    }),
+  );
+  f.stones.forEach((v) =>
+    chips.push({
+      key: `stone-${v}`,
+      label: dict.stones[v],
+      remove: () => update({ ...f, stones: f.stones.filter((x) => x !== v) }),
+    }),
+  );
+  if (f.priceMin !== null)
+    chips.push({
+      key: "priceMin",
+      label: fmt(c.priceChipFrom, { value: money(f.priceMin) }),
+      remove: () => update({ ...f, priceMin: null }),
+    });
+  if (f.priceMax !== null)
+    chips.push({
+      key: "priceMax",
+      label: fmt(c.priceChipTo, { value: money(f.priceMax) }),
+      remove: () => update({ ...f, priceMax: null }),
+    });
+  f.sizes.forEach((v) =>
+    chips.push({
+      key: `size-${v}`,
+      label: fmt(c.sizeChip, { size: v }),
+      remove: () => update({ ...f, sizes: f.sizes.filter((x) => x !== v) }),
+    }),
+  );
+  f.stock.forEach((v) =>
+    chips.push({
+      key: `stock-${v}`,
+      label: v === "in" ? c.availability.inStock : c.availability.onOrder,
+      remove: () => update({ ...f, stock: f.stock.filter((x) => x !== v) }),
+    }),
+  );
+  return chips;
 }

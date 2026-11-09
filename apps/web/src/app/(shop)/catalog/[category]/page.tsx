@@ -1,36 +1,30 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { serverApi } from "@/lib/api/client";
+import { Suspense } from "react";
 import { CatalogView } from "@/components/shop/catalog-view";
+import { CATEGORIES } from "@/content/mock/products";
+import { getDict } from "@/lib/i18n-server";
+import { isCategory } from "@/lib/products";
 
 type Params = Promise<{ category: string }>;
 
-async function findCategory(slug: string) {
-  const { data } = await serverApi(300).GET("/api/v1/categories");
-  const flat = (data ?? []).flatMap((c) => [c, ...c.children]);
-  return flat.find((c) => c.slug === slug);
+export function generateStaticParams() {
+  return CATEGORIES.map((category) => ({ category }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const category = await findCategory((await params).category);
-  if (!category) return {};
-  return {
-    title: category.seo_title ?? category.name,
-    description: category.seo_description ?? category.description ?? undefined,
-    alternates: { canonical: `/catalog/${category.slug}` },
-  };
+  const { category } = await params;
+  if (!isCategory(category)) return {};
+  const dict = await getDict();
+  return { title: dict.categories[category], alternates: { canonical: `/catalog/${category}` } };
 }
 
-export default async function CategoryPage({
-  params,
-  searchParams,
-}: {
-  params: Params;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const slug = (await params).category;
-  if (!(await findCategory(slug))) notFound();
+export default async function CategoryPage({ params }: { params: Params }) {
+  const { category } = await params;
+  if (!isCategory(category)) notFound();
   return (
-    <CatalogView category={slug} basePath={`/catalog/${slug}`} searchParams={await searchParams} />
+    <Suspense>
+      <CatalogView category={category} />
+    </Suspense>
   );
 }

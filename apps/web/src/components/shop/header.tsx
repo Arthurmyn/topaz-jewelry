@@ -6,11 +6,16 @@ import { fmt } from "@/lib/text";
 import { cartCount, useCartLines } from "@/lib/state/cart";
 import { HEADER_NAV } from "@/lib/routes";
 import { HeaderSearch } from "./header-search";
+import { MobileMenu } from "./mobile-menu";
 import { PreferenceSwitchers } from "./preference-switchers";
 
 const link = "text-13 text-ink link-grow whitespace-nowrap";
 
-/** Wireframe header: search + language/currency on the left, logo, account links and cart on the right. */
+/**
+ * Header: search and language/currency on the left, account links and cart on the right,
+ * navigation row below. The centered logo is removed for now (the new logo is coming), so
+ * the top row keeps its 78px height with `min-h`. Below 1024px the nav row becomes a drawer.
+ */
 export function Header() {
   const dict = useDict();
   const { accounts } = useFeatures();
@@ -18,28 +23,22 @@ export function Header() {
 
   return (
     <header className="border-border border-b bg-white">
-      <div className="px-header flex items-center py-[22px]">
-        <div className="flex min-w-0 flex-1 items-center gap-6">
-          <HeaderSearch />
-          <div className="max-md:hidden">
+      <div className="px-header flex min-h-[78px] items-center justify-between gap-6 py-[22px]">
+        <div className="flex min-w-0 items-center gap-6">
+          <MobileMenu />
+          <div className="max-lg:hidden">
+            <HeaderSearch />
+          </div>
+          <div className="max-lg:hidden">
             <PreferenceSwitchers />
           </div>
         </div>
-        <div className="flex flex-1 justify-center">
-          <Link
-            href="/"
-            aria-label="Topaz Jewelry"
-            className="text-28 text-ink tracking-logo font-medium"
-          >
-            TOPAZ
-          </Link>
-        </div>
-        <div className="flex flex-1 items-center justify-end gap-6">
-          <Link href="/favorites" className={`${link} max-md:hidden`}>
+        <div className="flex items-center justify-end gap-6">
+          <Link href="/favorites" className={`${link} max-lg:hidden`}>
             {dict.header.favorites}
           </Link>
           {accounts && (
-            <Link href="/profile" className={`${link} max-md:hidden`}>
+            <Link href="/profile" className={`${link} max-lg:hidden`}>
               {dict.header.profile}
             </Link>
           )}
@@ -48,8 +47,8 @@ export function Header() {
           </Link>
         </div>
       </div>
-      <nav aria-label={dict.header.navLabel} className="no-scrollbar overflow-x-auto">
-        <ul className="px-header text-13 text-ink mx-auto flex w-max min-w-full items-center justify-center gap-6 pt-1 pb-[18px] font-medium whitespace-nowrap lg:gap-10">
+      <nav aria-label={dict.header.navLabel} className="max-lg:hidden">
+        <ul className="px-header text-13 text-ink mx-auto flex items-center justify-center gap-10 pt-1 pb-[18px] font-medium whitespace-nowrap">
           {HEADER_NAV.map((item) => (
             <li key={item.key}>
               <Link href={item.href} className="link-grow">
@@ -57,21 +56,6 @@ export function Header() {
               </Link>
             </li>
           ))}
-          <li className="md:hidden">
-            <Link href="/favorites" className="link-grow">
-              {dict.header.favorites}
-            </Link>
-          </li>
-          {accounts && (
-            <li className="md:hidden">
-              <Link href="/profile" className="link-grow">
-                {dict.header.profile}
-              </Link>
-            </li>
-          )}
-          <li className="md:hidden">
-            <PreferenceSwitchers />
-          </li>
         </ul>
       </nav>
     </header>

@@ -31,6 +31,8 @@ export const ru = {
     language: "Язык",
     currency: "Валюта",
     navLabel: "Основная навигация",
+    menu: "Меню",
+    closeMenu: "Закрыть меню",
     nav: {
       jewelry: "Украшения",
       collections: "Коллекции",

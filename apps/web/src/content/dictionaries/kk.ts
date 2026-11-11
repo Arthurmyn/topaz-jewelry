@@ -29,6 +29,8 @@ export const kk: Dictionary = {
     language: "Тіл",
     currency: "Валюта",
     navLabel: "Негізгі навигация",
+    menu: "Мәзір",
+    closeMenu: "Мәзірді жабу",
     nav: {
       jewelry: "Әшекейлер",
       collections: "Коллекциялар",

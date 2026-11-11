@@ -26,6 +26,8 @@ export const en: Dictionary = {
     language: "Language",
     currency: "Currency",
     navLabel: "Main navigation",
+    menu: "Menu",
+    closeMenu: "Close menu",
     nav: {
       jewelry: "Jewelry",
       collections: "Collections",

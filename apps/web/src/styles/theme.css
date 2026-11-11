@@ -51,7 +51,7 @@
   --text-56--line-height: 68px;
 
   /* Letter spacing used by the wireframe */
-  --tracking-logo: 7px;
+  --tracking-logo: 0.25em; /* logo letter-spacing 25% (the logo itself is removed for now) */
   --tracking-eyebrow: 1.8px;
   --tracking-button: 0.52px;
 

@@ -10,6 +10,7 @@ import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
+  weight: ["400", "500"], // the design uses Regular and Medium only
   variable: "--font-inter",
   display: "swap",
 });

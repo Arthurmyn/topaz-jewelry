@@ -43,7 +43,9 @@ export default async function StoresPage() {
           >
             <div className="flex w-full flex-col items-start gap-3.5 lg:w-[420px] lg:shrink-0">
               <h2 id={`store-${store.id}`} className="text-28 text-ink font-medium">
-                {store.city}
+                <Link href={`/stores/${store.id}`} className="hover:underline">
+                  {store.city}
+                </Link>
               </h2>
               <p className="text-15 text-ink">{store.address}</p>
               <p className="text-15 text-muted">{store.hours}</p>

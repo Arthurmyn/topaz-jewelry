@@ -157,7 +157,9 @@ export function ProfileView() {
                     className="border-border text-14 text-ink flex items-center border-b py-[18px]"
                   >
                     <div role="cell" className="min-w-0 flex-1">
-                      {fmt(p.orders.number, { number: o.number })}
+                      <Link href={`/order/${o.number}`} className="hover:underline">
+                        {fmt(p.orders.number, { number: o.number })}
+                      </Link>
                     </div>
                     <div role="cell" className="min-w-0 flex-1">
                       {date(o.createdAt)}

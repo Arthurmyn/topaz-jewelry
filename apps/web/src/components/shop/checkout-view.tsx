@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ export function CheckoutView() {
   const c = dict.checkout;
   const lines = resolveLines(useCartLines());
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   const [delivery, setDelivery] = useState<Delivery>("pickup");
   const [payment, setPayment] = useState<Payment>(payments ? "online" : "request");
@@ -81,6 +83,11 @@ export function CheckoutView() {
     };
     saveOrder(order);
     clearCart();
+    if (payment === "online") {
+      // Mock provider: the real flow redirects to the bank and returns here after a verified webhook.
+      router.push(`/payment/return?order=${number}&status=succeeded`);
+      return;
+    }
     setPlaced(number);
   }
 
@@ -91,9 +98,14 @@ export function CheckoutView() {
         <p role="status" className="text-16 text-muted">
           {fmt(c.successText, { number: placed })}
         </p>
-        <Button asChild>
-          <Link href="/catalog">{c.successCta}</Link>
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href={`/order/${placed}`}>{dict.order.viewOrder}</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/catalog">{c.successCta}</Link>
+          </Button>
+        </div>
       </div>
     );
   }

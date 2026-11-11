@@ -65,3 +65,5 @@ Read `ARCHITECTURE.md` for the design; this file is the rulebook for day-to-day 
 - Money is stored in KZT and converted for display with `useMoney()`; never format prices by hand. Formatting avoids `Intl` on purpose (server and browser ICU data differ and break hydration).
 - Optional modules: with accounts off there is no login/profile and checkout is for guests; with payments off the "online card" option is hidden. Favorites are local to the browser either way.
 - Mock-only behavior (auth, orders, newsletter, fitting form) is marked in code with "frontend-only" comments and must be replaced when the backend is connected.
+- Typography: Inter only, weights 400 (Regular) and 500 (Medium) only, sizes 12-56px (banner 56, page titles 40, body 14-16, captions 12-13). Logo letter-spacing is 25% (`--tracking-logo`); the header logo is removed until the new one arrives.
+- Mobile: below 1024px the header nav becomes a drawer (`mobile-menu.tsx`); check new pages at 390px for horizontal overflow.

@@ -8,7 +8,7 @@ export const HEADER_NAV: { key: HeaderNavKey; href: string }[] = [
   { key: "collections", href: "/catalog?sort=new" },
   { key: "stones", href: "/catalog?stone=diamond" },
   { key: "wedding", href: "/catalog/rings?type=wedding" },
-  { key: "gifts", href: "/catalog?priceMax=100000" },
+  { key: "gifts", href: "/gift-cards" },
   { key: "stores", href: "/stores" },
   { key: "brand", href: "/about" },
 ];

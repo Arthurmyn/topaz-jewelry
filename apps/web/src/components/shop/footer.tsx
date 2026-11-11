@@ -25,7 +25,7 @@ export async function Footer() {
           { label: f.about.brand, href: "/about" },
           { label: f.about.stores, href: "/stores" },
           { label: f.about.contacts, href: "/info/contacts" },
-          { label: f.about.news, href: "/info/news" },
+          { label: f.about.news, href: "/blog" },
         ],
       },
       {
@@ -34,6 +34,7 @@ export async function Footer() {
           { label: f.info.offer, href: "/info/offer" },
           { label: f.info.privacy, href: "/info/privacy" },
           { label: f.info.returns, href: "/info/returns" },
+          { label: f.info.services, href: "/services" },
         ],
       },
       {

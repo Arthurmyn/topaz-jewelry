@@ -103,7 +103,7 @@ export function CatalogView({ category }: { category: Category | null }) {
             trigger={
               <span className="text-ink">{fmt(c.sortLabel, { value: c.sort[filters.sort] })}</span>
             }
-            triggerClassName="border border-border px-4 py-3 text-13 gap-4"
+            triggerClassName="border border-border px-4 py-3 text-13 gap-4 whitespace-nowrap"
           />
         </div>
       </div>

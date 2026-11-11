@@ -19,7 +19,11 @@ export function ProductCard({ product }: { product: Product }) {
   const purity = startingPurity(product);
   return (
     <Link href={productHref(product)} className="press group flex min-w-0 flex-col gap-3">
-      <PhotoPlaceholder zoom label={dict.common.productPhoto} className="h-[340px] w-full" />
+      <PhotoPlaceholder
+        zoom
+        label={dict.common.productPhoto}
+        className="h-[240px] w-full md:h-[340px]"
+      />
       <p className="text-15 text-ink w-full font-medium underline decoration-transparent underline-offset-4 transition-colors duration-150 group-hover:decoration-current">
         {productTitle(product, dict)}
       </p>

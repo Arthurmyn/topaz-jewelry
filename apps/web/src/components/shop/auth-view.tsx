@@ -106,7 +106,7 @@ export function AuthView() {
           <div className="flex w-full items-center justify-between gap-4">
             <Checkbox name="remember" label={a.login.remember} />
             <Link
-              href="/info/contacts"
+              href="/forgot-password"
               className="text-13 text-ink font-medium whitespace-nowrap underline underline-offset-2"
             >
               {a.login.forgot}
